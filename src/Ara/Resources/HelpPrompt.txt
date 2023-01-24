@@ -1,0 +1,9 @@
+Usage: ara.exe [options] file...
+
+Options:
+  -h|--help                   Display this information.
+  --version                   Display compiler version information.
+
+  -s                          Assemble only; do not link.
+
+  -o <file>                   Specify output file.

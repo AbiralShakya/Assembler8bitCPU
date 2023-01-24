@@ -1,5 +1,4 @@
-﻿using Ara.Diagnostics;
-using Asm.Diagnostics;
+﻿using Asm.Diagnostics;
 using Diagnostics;
 
 namespace Asm;
@@ -9,7 +8,6 @@ namespace Asm;
 /// </summary>
 public enum AssemblerStage {
     Raw,
-    Preprocessed,
     Assembled,
     Linked,
 }
@@ -56,36 +54,9 @@ public struct FileState {
 }
 
 /// <summary>
-/// A type of compilation that will be performed, only one per compilation.
-/// </summary>
-public enum BuildMode {
-    Independent,
-}
-
-/// <summary>
 /// State of a single assembler.
 /// </summary>
 public struct AssemblerState {
-    /// <summary>
-    /// What the assembler will target.
-    /// </summary>
-    public BuildMode buildMode;
-
-    /// <summary>
-    /// The name of the final executable/application (if applicable).
-    /// </summary>
-    public string moduleName;
-
-    /// <summary>
-    /// Assembler time options (see AraCommandLine)
-    /// </summary>
-    public string[] options;
-
-    /// <summary>
-    /// Where the application will start.
-    /// </summary>
-    public string entryPoint;
-
     /// <summary>
     /// At what point to stop assembly (usually unrestricted).
     /// </summary>
@@ -146,19 +117,6 @@ public sealed class Assembler {
     public int Assemble() {
         int err;
 
-        InternalPreprocessor();
-
-        err = CheckErrors();
-        if (err != SUCCESS_EXIT_CODE)
-            return err;
-
-        if (state.finishStage == AssemblerStage.Preprocessed)
-            return SUCCESS_EXIT_CODE;
-
-        diagnostics.Push(Error.Unsupported.IndependentCompilation());
-
-        return CheckErrors();
-
         InternalAssembler();
         err = CheckErrors();
         if (err != SUCCESS_EXIT_CODE)
@@ -184,28 +142,6 @@ public sealed class Assembler {
                 return ERROR_EXIT_CODE;
 
         return SUCCESS_EXIT_CODE;
-    }
-
-    private void InternalAssembler() {
-        diagnostics.Push(Warning.Unsupported.Assembling());
-    }
-
-    private void InternalLinker() {
-        diagnostics.Push(Warning.Unsupported.Linking());
-    }
-
-    private void InternalPreprocessor() {
-        var preprocessor = new Preprocessor();
-
-        for (int i=0; i<state.tasks.Length; i++) {
-            ref FileState task = ref state.tasks[i];
-
-            if (task.stage == AssemblerStage.Raw)
-                task.stage = AssemblerStage.Preprocessed;
-
-            var text = preprocessor.PreprocessText(task.inputFilename, task.fileContent.text);
-            task.fileContent.text = text;
-        }
     }
 
     private void InternalAssembler() { }

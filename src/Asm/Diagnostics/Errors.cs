@@ -1,4 +1,3 @@
-
 using Diagnostics;
 
 namespace Asm.Diagnostics;

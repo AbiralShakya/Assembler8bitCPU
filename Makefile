@@ -3,7 +3,7 @@ PROJDIR:=src/Ara
 ASMPDIR:=src/Asm
 DIAGDIR:=src/Diagnostics
 
-NETVER:=net6.0
+NETVER:=net7.0
 SYSTEM:=win-x64
 SLN:=Ara.sln
 CP=cp
