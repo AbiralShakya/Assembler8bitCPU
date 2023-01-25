@@ -1,0 +1,16 @@
+{
+    "files.associations": {
+        "*.csproj": "msbuild",
+    },
+    "files.exclude": {
+        "**/bin": true,
+        "**/obj": true,
+    },
+    "editor.rulers": [
+        80,
+        120,
+    ],
+    "omnisharp.defaultLaunchSolution": "Ara.sln",
+    "omnisharp.disableMSBuildDiagnosticWarning": true,
+    "omnisharp.enableEditorConfigSupport": true,
+}

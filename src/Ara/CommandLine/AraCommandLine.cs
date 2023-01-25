@@ -37,7 +37,7 @@ public static partial class AraCommandLine {
 
         if (!Directory.Exists(resources)) {
             corrupt = true;
-            ResolveDiagnostic(Ara.Diagnostics.Warning.CorruptInstallation(), assembler.me, assembler.state.options);
+            ResolveDiagnostic(Ara.Diagnostics.Warning.CorruptInstallation(), assembler.me);
         }
 
         if (hasDialog)
@@ -52,7 +52,7 @@ public static partial class AraCommandLine {
         if (hasDialog)
             return SuccessExitCode;
 
-        err = ResolveDiagnostics(diagnostics, assembler.me, assembler.state.options);
+        err = ResolveDiagnostics(diagnostics, assembler.me);
 
         if (err > 0)
             return err;
@@ -60,7 +60,7 @@ public static partial class AraCommandLine {
         ResolveOutputFiles(assembler);
         ReadInputFiles(assembler, out diagnostics);
 
-        err = ResolveDiagnostics(diagnostics, assembler.me, assembler.state.options);
+        err = ResolveDiagnostics(diagnostics, assembler.me);
 
         if (err > 0)
             return err;
@@ -95,7 +95,7 @@ public static partial class AraCommandLine {
         Console.WriteLine(versionMessage);
     }
 
-    private static void PrettyPrintDiagnostic(AraDiagnostic diagnostic, ConsoleColor? textColor, string[] options) {
+    private static void PrettyPrintDiagnostic(AraDiagnostic diagnostic, ConsoleColor? textColor) {
         void ResetColor() {
             if (textColor != null)
                 Console.ForegroundColor = textColor.Value;
@@ -121,9 +121,6 @@ public static partial class AraCommandLine {
         var highlightColor = ConsoleColor.White;
 
         var severity = diagnostic.info.severity;
-
-        if (severity == DiagnosticType.Warning && options.Contains("error"))
-            severity = DiagnosticType.Error;
 
         if (severity == DiagnosticType.Error) {
             highlightColor = ConsoleColor.Red;
@@ -184,7 +181,7 @@ public static partial class AraCommandLine {
     }
 
     private static DiagnosticType ResolveDiagnostic<Type>(
-        Type diagnostic, string me, string[] options, ConsoleColor? textColor = null)
+        Type diagnostic, string me, ConsoleColor? textColor = null)
         where Type : Diagnostic {
         var previous = Console.ForegroundColor;
 
@@ -196,11 +193,6 @@ public static partial class AraCommandLine {
         }
 
         var severity = diagnostic.info.severity;
-
-        if (severity == DiagnosticType.Warning && options.Contains("error"))
-            severity = DiagnosticType.Error;
-        if (severity == DiagnosticType.Warning && options.Contains("ignore"))
-            severity = DiagnosticType.Unknown;
 
         ResetColor();
 
@@ -227,7 +219,7 @@ public static partial class AraCommandLine {
             ResetColor();
             Console.WriteLine(diagnostic.message);
         } else {
-            PrettyPrintDiagnostic(diagnostic as AraDiagnostic, textColor, options);
+            PrettyPrintDiagnostic(diagnostic as AraDiagnostic, textColor);
         }
 
         Console.ForegroundColor = previous;
@@ -236,7 +228,7 @@ public static partial class AraCommandLine {
     }
 
     private static int ResolveDiagnostics<Type>(
-        DiagnosticQueue<Type> diagnostics, string me, string[] options, ConsoleColor? textColor = null)
+        DiagnosticQueue<Type> diagnostics, string me, ConsoleColor? textColor = null)
         where Type : Diagnostic {
         if (diagnostics.count == 0)
             return SuccessExitCode;
@@ -245,7 +237,7 @@ public static partial class AraCommandLine {
         var diagnostic = diagnostics.Pop();
 
         while (diagnostic != null) {
-            var temp = ResolveDiagnostic(diagnostic, me, options, textColor);
+            var temp = ResolveDiagnostic(diagnostic, me, textColor);
 
             switch (temp) {
                 case DiagnosticType.Warning:
@@ -284,7 +276,7 @@ public static partial class AraCommandLine {
 
     private static int ResolveDiagnostics(
         Assembler assembler, string me = null, ConsoleColor textColor = ConsoleColor.White) {
-        return ResolveDiagnostics(assembler.diagnostics, me ?? assembler.me, assembler.state.options, textColor);
+        return ResolveDiagnostics(assembler.diagnostics, me ?? assembler.me, textColor);
     }
 
     private static void CleanOutputFiles(Assembler assembler) {
